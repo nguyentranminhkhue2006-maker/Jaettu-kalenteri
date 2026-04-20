@@ -1,3 +1,4 @@
+import secrets
 import sqlite3
 from flask import Flask
 from flask import abort, redirect, render_template, request, session, flash
@@ -12,6 +13,12 @@ app.secret_key=config.secret_key
 
 def require_login():
     if "user_id" not in session:
+        abort(403)
+
+def check_csrf():
+    if "csrf_token" not in request.form:
+        abort(403)
+    if request.form["csrf_token"] != session["csrf_token"]:
         abort(403)
 
 @app.route("/")
@@ -58,6 +65,8 @@ def show_event(event_id):
 @app.route("/new_event")
 def new_event():
     require_login()
+    check_csrf()
+
     classes=events.get_all_classes()
     cur_date=datetime.now() + timedelta(days=1)
     cur_date=cur_date.strftime("%Y-%m-%dT00:00")
@@ -66,6 +75,8 @@ def new_event():
 @app.route("/add_event", methods=["POST"])
 def add_event():
     require_login()
+    check_csrf()
+
     event_name=request.form["event_name"]
     if not event_name or len(event_name)>50:
         flash("Invalid name")
@@ -106,6 +117,8 @@ def show_lines(content):
 
 @app.route("/add_comment", methods=["POST"])
 def add_comment():
+    check_csrf()
+
     event_id=request.form["event_id"]
     if "user_id" not in session:
         flash("Log in to comment")
@@ -128,6 +141,8 @@ def add_comment():
 @app.route("/edit_event/<int:event_id>")
 def edit_event(event_id):
     require_login()
+    check_csrf()
+
     event=events.get_event(event_id)
     if not event:
         abort(404)
@@ -147,6 +162,9 @@ def edit_event(event_id):
 
 @app.route("/update_event", methods=["POST"])
 def update_event():
+    require_login()
+    check_csrf()
+
     event_id=request.form["event_id"]
     event=events.get_event(event_id)
     if not event:
@@ -182,6 +200,7 @@ def update_event():
 @app.route("/cancel_event/<int:event_id>", methods=["GET","POST"])
 def cancel_event(event_id):
     require_login()
+
     event=events.get_event(event_id)
     if not event:
         abort(404)
@@ -192,6 +211,7 @@ def cancel_event(event_id):
         return render_template("cancel_event.html", event=event)
 
     if request.method=="POST":
+        check_csrf()
         if "cancel" in request.form:
             events.cancel_event(event_id)
             return redirect("/")
@@ -240,6 +260,7 @@ def login():
         if user_id:
             session["user_id"]= user_id
             session["username"] = username
+            session["csrf_token"] = secrets.token_hex(16)
             return redirect("/")
 
         flash('Incorrect username or password')

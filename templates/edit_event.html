@@ -36,6 +36,7 @@
         </select>
     </p>
     {% endfor %}
+    <input type="hidden" name="csrf_token" value="{{ session.csrf_token }}" />
     <input type="hidden" name="event_id" value="{{event.id}}" />
     <input type="submit" value="Update event" />
 </form>
