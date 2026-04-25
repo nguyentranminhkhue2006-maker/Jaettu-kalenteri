@@ -141,7 +141,6 @@ def add_comment():
 @app.route("/edit_event/<int:event_id>")
 def edit_event(event_id):
     require_login()
-    check_csrf()
 
     event=events.get_event(event_id)
     if not event:
