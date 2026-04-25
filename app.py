@@ -271,4 +271,5 @@ def logout():
     if "user_id" in session:
         del session["user_id"]
         del session["username"]
+    flash('You have logged out')
     return redirect("/")
