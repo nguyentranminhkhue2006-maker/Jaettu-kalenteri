@@ -7,12 +7,12 @@
 <h2>Find event</h2>
 <form action="/find_event" method="get">
   <p>
-      Keyword: <input type="text" name="query" value="{{query}}">
+      <label for="query">Keyword:</label> <input type="text" name="query" id="query" value="{{query}}">
   </p>
   {% for class in all_classes %}
   <p>
-    {{class}}:
-    <select name="classes">
+    <label for="class{{class}}">{{class}}:</label>
+    <select name="classes" id="class{{class}}">
       <option value="">(choose)</option>
       {% for value in all_classes[class] %}
       {% if classes and classes[class]==value %}
