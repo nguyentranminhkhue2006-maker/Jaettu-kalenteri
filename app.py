@@ -45,8 +45,15 @@ def find_event():
             if class_title not in all_classes or class_value not in all_classes[class_title]:
                 abort(403)
             classes[class_title]=class_value
-    if query or classes:
-        results=events.find_event(query,classes)
+    start_time= request.args.get("start_time")
+    end_time= request.args.get("end_time")
+    if start_time:
+        start_time= datetime.strptime(start_time, "%Y-%m-%dT%H:%M")
+    if end_time:
+        end_time= datetime.strptime(end_time, "%Y-%m-%dT%H:%M")
+
+    if query or classes or start_time or end_time:
+        results=events.find_event(query,classes, start_time, end_time)
     else:
         query=""
         results=[]

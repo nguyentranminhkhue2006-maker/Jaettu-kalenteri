@@ -75,27 +75,32 @@ def cancel_event(event_id):
     sql="DELETE FROM events WHERE id=?"
     db.execute(sql, [event_id])
 
-def find_event(query, classes):
+def find_event(query, classes, start_time, end_time):
+    conditions=[]
+    params=[]
+
     if classes:
-        filter_query=""
-        filters=[]
         for title in classes:
-            filter_query+="event_classes.title=? AND event_classes.value=? "
-            filters.append(title)
-            filters.append(classes[title])
-    if query and classes:
-        like="%"+query+"%"
-        sql=""" SELECT DISTINCT events.id, event_name 
-                FROM events JOIN event_classes ON events.id=event_classes.event_id
-                WHERE (event_name LIKE ? OR description LIKE ?) AND """ 
-        sql+= filter_query + "ORDER BY events.id DESC"
-        return db.query(sql,[like, like]+filters)
-    elif query:
-        like="%"+query+"%"
-        sql="""SELECT id, event_name FROM events WHERE event_name LIKE ? OR description LIKE ? ORDER BY id DESC"""
-        return db.query(sql,[like, like])
-    else:
-        sql="SELECT DISTINCT events.id, events.event_name FROM events JOIN event_classes ON events.id=event_classes.event_id WHERE "
-        sql+= filter_query + "ORDER BY events.id DESC"
-        print(sql)
-        return db.query(sql,filters)
+            conditions.append("event_classes.title=? AND event_classes.value=?")
+            params.extend([title, classes[title]])
+
+    if start_time and end_time:
+        conditions.append("date_time BETWEEN ? AND ?")
+        params.extend([start_time, end_time])
+    elif start_time and not end_time:
+        conditions.append("date_time > ?")
+        params.append(start_time)
+    elif end_time and not start_time:
+        conditions.append("date_time < ?")
+        params.append(end_time)
+
+    if query:
+        conditions.append("(event_name LIKE ? OR description LIKE ?)")
+        params.extend(["%"+query+"%","%"+query+"%"])
+
+    sql="""SELECT DISTINCT events.id, event_name FROM events LEFT JOIN event_classes ON events.id=event_classes.event_id"""
+    if conditions:
+        sql+=" WHERE " + " AND ".join(conditions)
+    sql+=" ORDER BY events.id DESC"
+
+    return db.query(sql,params)
