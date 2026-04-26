@@ -40,12 +40,19 @@ def get_classes(event_id):
     sql="SELECT title, value FROM event_classes WHERE event_id=?"
     return db.query(sql,[event_id])
 
-def get_events():
+def event_count():
+    sql="SELECT COUNT(*) FROM events"
+    return db.query(sql)[0][0]
+
+def get_events(page, page_size):
     sql=""" SELECT events.id, events.date_time, events.event_name, users.id user_id, users.username
             FROM events, users
             WHERE events.user_id=users.id
-            ORDER BY events.date_time"""
-    return db.query(sql)
+            ORDER BY events.date_time
+            LIMIT ? OFFSET ?"""
+    limit=page_size
+    offset=page_size*(page-1)
+    return db.query(sql,[limit,offset])
 
 def get_event(event_id):
     sql= """SELECT events.id, events.date_time, events.event_name, events.description, users.username, users.id user_id

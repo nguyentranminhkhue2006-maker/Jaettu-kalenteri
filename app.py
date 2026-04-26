@@ -7,6 +7,7 @@ import db
 import config
 import events, users
 import markupsafe
+import math
 
 app = Flask(__name__)
 app.secret_key=config.secret_key
@@ -22,9 +23,19 @@ def check_csrf():
         abort(403)
 
 @app.route("/")
-def index():
-    all_events= events.get_events()
-    return render_template("index.html", events=all_events)
+@app.route("/<int:page>")
+def index(page=1):
+    page_size=10
+    event_count=events.event_count()
+    page_count=math.ceil(event_count/page_size)
+    page_count=max(page_count,1)
+
+    if page<1:
+        return redirect("/1")
+    if page>page_count:
+        return redirect("/"+str(page_count))
+    all_events= events.get_events(page,page_size)
+    return render_template("index.html", page=page, page_count=page_count, events=all_events)
 
 @app.route("/user/<int:user_id>")
 def show_user(user_id):
