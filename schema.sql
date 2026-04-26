@@ -31,3 +31,5 @@ CREATE TABLE event_classes (
     title TEXT,
     value TEXT
 );
+
+CREATE INDEX idx_event_comments ON comments (event_id);

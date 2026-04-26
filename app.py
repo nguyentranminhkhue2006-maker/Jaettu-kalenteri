@@ -9,6 +9,7 @@ import events, users
 import markupsafe
 import math
 
+
 app = Flask(__name__)
 app.secret_key=config.secret_key
 
