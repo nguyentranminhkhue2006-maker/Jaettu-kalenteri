@@ -1,14 +1,16 @@
+import math
 import secrets
 import sqlite3
+from datetime import datetime, timedelta
+
+import markupsafe
 from flask import Flask
 from flask import abort, redirect, render_template, request, session, flash
-from datetime import datetime, timedelta
+
 import db
 import config
-import events, users
-import markupsafe
-import math
-
+import events
+import users
 
 app = Flask(__name__)
 app.secret_key=config.secret_key
