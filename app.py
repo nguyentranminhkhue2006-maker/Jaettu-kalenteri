@@ -7,8 +7,8 @@ import markupsafe
 from flask import Flask
 from flask import abort, redirect, render_template, request, session, flash
 
-import db
 import config
+import db
 import events
 import users
 
@@ -71,7 +71,8 @@ def find_event():
     else:
         query=""
         results=[]
-    return render_template("find_event.html", query=query, results=results, all_classes=all_classes, classes=classes)
+    return render_template("find_event.html", query=query,
+                           results=results, all_classes=all_classes, classes=classes)
 
 @app.route("/event/<int:event_id>")
 def show_event(event_id):
@@ -178,7 +179,8 @@ def edit_event(event_id):
     for entry in events.get_classes(event_id):
         classes[entry["title"]]=entry["value"]
 
-    return render_template("edit_event.html", event=event, cur_date=cur_date, all_classes=all_classes, classes=classes)
+    return render_template("edit_event.html", event=event,
+                           cur_date=cur_date, all_classes=all_classes, classes=classes)
 
 @app.route("/update_event", methods=["POST"])
 def update_event():
@@ -235,8 +237,7 @@ def cancel_event(event_id):
         if "cancel" in request.form:
             events.cancel_event(event_id)
             return redirect("/")
-        else:
-            return redirect("/event/"+str(event_id))
+        return redirect("/event/"+str(event_id))
 
 @app.route("/register")
 def register():
@@ -263,7 +264,6 @@ def create():
 
     flash("Account created!")
     return redirect('/')
-    
 
 @app.route("/login", methods=["GET", "POST"])
 def login():

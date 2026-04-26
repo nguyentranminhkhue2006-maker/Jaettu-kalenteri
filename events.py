@@ -1,5 +1,4 @@
 import db
-from datetime import datetime
 
 def get_all_classes():
     sql="SELECT title, value FROM classes ORDER BY id"
@@ -31,7 +30,7 @@ def add_comment(event_id, user_id, content):
     db.execute(sql, [event_id, user_id, content])
 
 def get_comments(event_id):
-    sql=""" SELECT comments.content, users.id user_id, users.username FROM comments, users 
+    sql=""" SELECT comments.content, users.id user_id, users.username FROM comments, users
             WHERE comments.event_id=? AND comments.user_id=users.id
             ORDER BY comments.id DESC"""
     return db.query(sql, [event_id])
@@ -55,7 +54,8 @@ def get_events(page, page_size):
     return db.query(sql,[limit,offset])
 
 def get_event(event_id):
-    sql= """SELECT events.id, events.date_time, events.event_name, events.description, users.username, users.id user_id
+    sql= """SELECT events.id, events.date_time, events.event_name, events.description,
+            users.username, users.id user_id
             FROM events, users
             WHERE events.user_id = users.id AND events.id = ?"""
     result= db.query(sql,[event_id])
@@ -105,7 +105,9 @@ def find_event(query, classes, start_time, end_time):
         conditions.append("(event_name LIKE ? OR description LIKE ?)")
         params.extend(["%"+query+"%","%"+query+"%"])
 
-    sql="""SELECT DISTINCT events.id, event_name FROM events LEFT JOIN event_classes ON events.id=event_classes.event_id"""
+    sql=""" SELECT DISTINCT events.id, event_name
+            FROM events LEFT JOIN event_classes
+            ON events.id=event_classes.event_id """
     if conditions:
         sql+=" WHERE " + " AND ".join(conditions)
     sql+=" ORDER BY events.id DESC"
