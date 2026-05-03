@@ -44,8 +44,8 @@ def show_user(user_id):
     user=users.get_user(user_id)
     if not user:
         abort(404)
-    events=users.get_events(user_id)
-    return render_template("show_user.html",user=user, events=events)
+    user_events=users.get_events(user_id)
+    return render_template("show_user.html",user=user, events=user_events)
 
 @app.route("/find_event")
 def find_event():
